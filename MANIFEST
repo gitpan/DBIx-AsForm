@@ -1,0 +1,14 @@
+.cvsignore
+Build.PL
+Changes
+MANIFEST			This list of files
+MANIFEST.SKIP
+META.yml
+Makefile.PL
+README
+lib/DBIx/AsForm.pm
+t/00-load.t
+t/basic.t
+t/create_test_table.Pg.sql
+t/pod-coverage.t
+t/pod.t

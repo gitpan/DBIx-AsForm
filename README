@@ -1,0 +1,147 @@
+NAME
+    DBIx::AsForm - Generate an HTML form from a database table.
+
+SYNOPSIS
+    Generate an HTML form a database table in a flexible way.
+
+    Setup:
+
+        use DBIx::AsForm;
+        my $daf = DBIx::AsForm->new($dbh);
+
+    Generate an empty form:
+
+        my @html_form = $daf->to_html_array('widgets');
+
+        use CGI;
+        my $q = CGI->new();
+        print $q->start_form;
+            for my $href (@html_form) {
+                print "<b>$href->{name}</b>: ". $href->{obj}->as_HTML." <br>"
+            }
+        print $q->end_form;
+
+MOTIVATION
+    This project was borne out of combined excitement and frustration with
+    Class::DBI::AsForm. I like the general design of the module because it
+    doesn't try to do too much. However, I don't use Class::DBI as part of
+    my standard development, and I didn't want to depend on "Class::DBI" for
+    this tool.
+
+    I also wanted smarter form element generation than Class::DBI::AsForm
+    provides. Over time I expect Class::DBI::AsForm to improve in this area
+    to match the advances I've made in that area.
+
+METHODS
+  new()
+      my $daf = DBIx::AsForm->new($dbh);
+
+    Creates a new DBIx::AsForm object. The first argument must be an
+    existing database handle.
+
+  to_html_array()
+       # simple syntax 
+       my @html_form = $daf->to_html_array($table_name);
+
+       # More flexible
+       my @html_form = $daf->to_html_array(
+        table     => $table, 
+        row_href  => \%row,          # optional
+        columns   => \@column_names, # optional, defaults to all
+        stringify => {               # optional
+            widget.id => 'widget_name'
+        },
+       );
+
+    This returns an array of hashrefs mapping all the column names of the
+    table to HTML::Element objects representing form widgets.
+
+    An array is used to preserve the proper ordering.
+
+    Optionally, a hashref of data an be passed in to populate the form
+    elements.
+
+    A list of column names to use can be provided. The default is to use all
+    of them in the order DBI returns them.
+
+    Finally, 'stringify'. We will detect all the "has a" foreign key
+    relationships automatically. However, usually these are ID columns when
+    we want to display a name. Use "stringify" to define another column name
+    from the other table to display in place of the ID. By default we will
+    just display the ID. A future version will support a callback here to
+    define more complex stringification possibilities.
+
+  to_html_href()
+    The same as "to_html_array()", but returns the results in a single
+    hashref.
+
+  INTERNALS
+    The details are subject to change without notice and are documented here
+    solely for the benefit of contributors to this module.
+
+  _to_field($column_info_row_href)
+      my $href = _to_field($column_info_row_href);
+  
+      # Example contents of $href
+      { name => 'widget', obj => $a };
+
+    This maps an individual column to a form element. The input is expected
+    to be a hashref as would be returned in as an array element from a call
+    to DBI's "column_info()".
+
+    The output is a hashref with 'name' and 'obj' keys to hold the column
+    name and a HTML::Element object.
+
+   _decide_col_details()
+      ($input_type, $attr_href ) = $self->_decide_col_details($row_href);
+
+    Returns a suggested HTML form element type and an attribute of form tag
+    attributes based on a hashref of column meta data, as supplied by DBI's
+    column_info().
+
+SEE ALSO
+    Class::DBI::AsForm - The same idea, integrated with Class::DBI
+
+    HTML::FormEngine::DBSQL - It has similiar functionality, but is
+    difficult to use and customize if you don't want the other
+    functionality.
+
+    DB_Browser - http://www.summersault.com/sofware/db_browser - The oldest
+    automated database to form tool I'm aware of. The code looks old school
+    now, but still has some useful nuggest of wisdom about database meta
+    data.
+
+TODO
+     * Testing generally isn't done
+     * Foreign key stuff is broken
+     * Test with more databases besides PostgreSQL
+     * Set a max size limit on the textareas
+     * Consider smarter date fields types, perhaps integrate
+       with one of the JavaScript calendar date-picker things.
+     * Possible tab-completion for has-a relationships with big
+       tables (via AJAX). 
+     * Address underlying issue that HTML::Element doesn't always produce
+       valid HTML/XHTML
+
+BUGS
+    please report any bugs or feature requests to
+    c<bug-dbix-asform@rt.cpan.org>, or through the web interface at
+    l<http://rt.cpan.org/noauth/reportbug.html?queue=dbix-asform>. i will be
+    notified, and then you'll automatically be notified of progress on your
+    bug as i make changes.
+
+CONTRIBUTING
+    Patches, questions and feedback are welcome. This project is managed
+    using the darcs source control system ( http://www.darcs.net/ ). My
+    darcs archive is here: http://mark.stosberg.com/darcs_hive/as_form/
+
+AUTHOR
+    Mark Stosberg, c<< <mark@summersault.com> >>
+
+Acknowledgements
+Copyright & License
+    copyright 2005 Mark Stosberg, all rights reserved.
+
+    this program is free software; you can redistribute it and/or modify it
+    under the same terms as perl itself.
+

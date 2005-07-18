@@ -1,0 +1,16 @@
+--- #YAML:1.0
+name: DBIx-AsForm
+version: 0.01_01
+author:
+  - Mark Stosberg <mark@summersault.com>
+abstract: Generate an HTML form from a database table.
+license: perl
+requires:
+  HTML::Element: 0
+  Params::Validate: 0.74
+  Test::More: 0
+provides:
+  DBIx::AsForm:
+    file: lib/DBIx/AsForm.pm
+    version: 0.01_01
+generated_by: Module::Build version 0.2611
