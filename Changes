@@ -1,5 +1,11 @@
 Revision history for DBIx-AsForm
 
+0.02_01 Wed Jul 20 21:07:00 EST 2005
+        [BUG FIXES]
+        - 'table' now works as named param
+        - fixed 'columns' related failure
+        - Quit adding bogus 'maxlength' to integer fields
+
 0.01    Date/time
         First version, released on an unsuspecting world.
 

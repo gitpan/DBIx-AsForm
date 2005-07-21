@@ -53,6 +53,15 @@ ok($daf, "initial object creation");
    is($attr_href->{cols}, undef , "expected cols type for boolean");
 }
 
+{ 
+   my  ($input_type, $attr_href ) = $daf->_decide_col_details(
+       { TYPE_NAME => 'integer', COLUMN_SIZE => 4  }
+   );
+   is($input_type,'input', "expected tag type input for int4");
+   is($attr_href->{'size'}, 20 , "expected size for int4");
+   is($attr_href->{maxlength}, undef , "expected maxlength type for int4");
+}
+
 
 
 
@@ -79,6 +88,20 @@ ok( (ref $html_href eq 'HASH'), "to_html_href returns a hashref");
 #   warn Dumper ($html_href->{'varchar_col'}->as_HTML);
 }
 
+{ 
+	my @html_form_with_named_params = $daf->to_html_array( table => 'dbix_asform_test'); 
+    is( (scalar @html_form),(scalar @html_form_with_named_params), "named params syntax works with table");
+}
+
+{ 
+	my @html_form = $daf->to_html_array( 
+            table   => 'dbix_asform_test',
+            columns => [qw/int4_not_null varchar_col/],
+        ); 
+    is( (scalar @html_form),2, "limiting with columns returns the right number of things");
+#    use Data::Dumper;
+#    warn Dumper (\@html_form);
+}
 
 # For personal reality checking. 
 # open (FILE, ">/home/mark/www/perl/dbix_asform.html") || die "can't write to file: $!";

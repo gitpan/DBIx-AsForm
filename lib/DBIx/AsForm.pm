@@ -12,7 +12,7 @@ DBIx::AsForm - Generate an HTML form from a database table.
 =cut
 
 use vars qw/$VERSION/;
-$VERSION = '0.01_01';
+$VERSION = '0.02_01';
 
 =head1 SYNOPSIS
 
@@ -110,18 +110,17 @@ sub to_html_array {
         $p{table} = shift;
     }
     else {
-        my %p = validate( @_, {
+        %p = validate( @_, {
                 table     => 1,
                 row_href  => { type => HASHREF, default => {}, },
                 stringify => { type => HASHREF, default => {},  },
                 columns   => { type => ARRAYREF, default => [], },
             });
     }
-    
 
     my @col_meta;
     # get the details for specific rows
-    if ($p{columns}) {
+    if ((defined $p{columns}) and (scalar @{ $p{columns} })) {
         for my $col (@{ $p{columns} }) {
             # parameters are: $catalog, $schema, $table, $column
             my $sth = $self->{dbh}->column_info( undef, undef , $p{table}, $col ) || die "column_info didn't work";
@@ -280,15 +279,21 @@ sub _decide_col_details {
     my $default_field_size = 20;
 
     my $type = $col_meta->{TYPE_NAME};
-    if ($col_meta->{fk} || (defined $type && ($type =~ /bool/i)) ) {
+    if (defined $col_meta->{fk} || (defined $type && ($type =~ /bool/i)) ) {
         $input_type = 'select';
     }
     # Should I be checking for DATA_TYPE = 12 here to be more reliable and portable?
-    elsif ($col_meta->{TYPE_NAME} eq 'text') {
+    elsif ((defined $type) && ($type eq 'text')) {
         $input_type = 'textarea';
         $attr{cols} = $default_field_size;
         $attr{rows} = 4 # arbitrary;
 
+    }
+    # We'll leave the maxlength and size alone for integers
+    elsif ((defined $type) && ($type =~ m/^(big|small)?int(eger)?$/i)) {
+        $input_type = 'input';
+        $attr{'type'} = 'text'; 
+        $attr{'size'} = $default_field_size;
     }
     # a text field
     else {
